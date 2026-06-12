@@ -67,6 +67,21 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Help! Select a module from /start to use specific features.")
 
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+class DummyHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b"Bot is running!")
+
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), DummyHandler)
+    server.serve_forever()
+
 def main():
     """Start the bot."""
     # Create the Application and pass it your bot's token.
@@ -96,6 +111,11 @@ def main():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(init_db())
     loop.run_until_complete(init_all_clients())
+
+    # Start dummy HTTP server for Render health checks
+    if os.environ.get("PORT"):
+        logger.info("Starting dummy web server for Render...")
+        threading.Thread(target=run_dummy_server, daemon=True).start()
 
     # Run the bot until the user presses Ctrl-C
     logger.info("Starting bot...")
