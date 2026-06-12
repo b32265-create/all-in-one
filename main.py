@@ -89,7 +89,16 @@ def main():
         logger.error("Please set your BOT_TOKEN in config.py")
         return
 
-    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    # Initialize the database and global Userbots without blocking startup
+    from database import init_db
+    from modules.ads.broadcaster import init_all_clients
+    
+    async def post_init(app: Application):
+        await init_db()
+        # Start Pyrogram clients in the background so it doesn't block the bot startup
+        asyncio.create_task(init_all_clients())
+
+    application = ApplicationBuilder().token(BOT_TOKEN).post_init(post_init).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
@@ -104,13 +113,6 @@ def main():
     
     # Global error handler
     application.add_error_handler(error_handler)
-
-    # Initialize the database and global Userbots
-    from database import init_db
-    from modules.ads.broadcaster import init_all_clients
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(init_db())
-    loop.run_until_complete(init_all_clients())
 
     # Start dummy HTTP server for Render health checks
     if os.environ.get("PORT"):
