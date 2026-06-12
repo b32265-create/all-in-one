@@ -1,1 +1,0 @@
-# Initialize ads module package
