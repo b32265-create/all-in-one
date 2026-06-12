@@ -1,6 +1,6 @@
 import os
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8802315206:AAFxXAvh8UTn7e2u24JQJCmNVG0vpHVrlN4")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8802315206:AAGZT0wtXxLTrzxBz6JWjovRjn5NQbfyPFQ")
 
 # Telegram API credentials for userbots (Pyrogram)
 # Get these from https://my.telegram.org
